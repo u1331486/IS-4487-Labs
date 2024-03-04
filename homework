@@ -1,0 +1,263 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "mount_file_id": "1Zk13v4uE8Foxkdqb02ZZSyF3xzwBbquw",
+      "authorship_tag": "ABX9TyPqEDxdQaoAShL0wqsLjnU3",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/u1331486/IS-4487-Labs/blob/main/homework\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 1,
+      "metadata": {
+        "id": "thFUeRGRHBIG"
+      },
+      "outputs": [],
+      "source": [
+        "import pandas as pd\n",
+        "import matplotlib as mpl\n",
+        "import numpy as np"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from google.colab import drive\n",
+        "drive.mount('/content/gdrive', force_remount=True)\n",
+        "\n",
+        "df = pd.read_csv (r'/content/gdrive/MyDrive/Colab Notebooks/adviseinvest.csv')\n",
+        "print(df)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "qO6YGFChHJDb",
+        "outputId": "8585c707-7f8c-4afe-f25b-48bb5608744c"
+      },
+      "execution_count": 2,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Mounted at /content/gdrive\n",
+            "       answered  income  female  age  job  num_dependents  rent  own_res  \\\n",
+            "0             1   13520       0   23    0               1     1        0   \n",
+            "1             0   14780       0   22    2               1     0        1   \n",
+            "2             1   37570       0   62    2               1     0        0   \n",
+            "3             0   12450       0   33    2               1     0        1   \n",
+            "4             0   12400       0   48    1               2     0        0   \n",
+            "...         ...     ...     ...  ...  ...             ...   ...      ...   \n",
+            "29499         1   11630       0   44    2               1     0        1   \n",
+            "29500         0   28640       0   34    1               2     0        1   \n",
+            "29501         1   34480       0   74    1               1     0        1   \n",
+            "29502         1   10550       0   30    2               1     0        1   \n",
+            "29503         0  125790       0   44    3               1     0        0   \n",
+            "\n",
+            "       new_car  chk_acct  sav_acct  num_accts  mobile  product  \n",
+            "0          0.0         0         2          0       1        2  \n",
+            "1          0.0         3         0          3       0        0  \n",
+            "2          1.0         3         0          4       0        4  \n",
+            "3          0.0         1         0          2       0        0  \n",
+            "4          1.0         2         1          4       0        0  \n",
+            "...        ...       ...       ...        ...     ...      ...  \n",
+            "29499      1.0         3         2          2       0        4  \n",
+            "29500      0.0         2         0          2       0        0  \n",
+            "29501      0.0         3         0          3       0        4  \n",
+            "29502      1.0         3         0          1       0        1  \n",
+            "29503      0.0         1         0          4       1        0  \n",
+            "\n",
+            "[29504 rows x 14 columns]\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# 3. Clean the dataset\n",
+        "# Remove rows with NAs\n",
+        "df.dropna(inplace=True)"
+      ],
+      "metadata": {
+        "id": "Mc0cXiw0HQSa"
+      },
+      "execution_count": 3,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Remove the row with the single outlier in num_accts\n",
+        "df = df[df['num_accts'] < df['num_accts'].max()]"
+      ],
+      "metadata": {
+        "id": "HPa-PeoWJChP"
+      },
+      "execution_count": 4,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Remove rows with negative income values\n",
+        "df = df[df['income'] >= 0]"
+      ],
+      "metadata": {
+        "id": "FPGEyN8gJGa5"
+      },
+      "execution_count": 5,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# 4. Recode identified variables as factors\n",
+        "# Convert Job, Product, Chk_acct, and Sav_acct to categorical variables\n",
+        "df['job'] = df['job'].astype('category')\n",
+        "df['product'] = df['product'].astype('category')\n",
+        "df['chk_acct'] = df['chk_acct'].astype('category')\n",
+        "df['sav_acct'] = df['sav_acct'].astype('category')"
+      ],
+      "metadata": {
+        "id": "MyGcI30SH6lY"
+      },
+      "execution_count": 6,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# 5. Calculate the mean of \"answered\" after cleaning the dataset\n",
+        "answered_mean = df['answered'].mean()"
+      ],
+      "metadata": {
+        "id": "enveQc1zJLfK"
+      },
+      "execution_count": 7,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Print the mean of \"answered\"\n",
+        "print(\"Mean of 'answered' after cleaning the dataset:\", answered_mean)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "OtX6XMH3JN1S",
+        "outputId": "3e227cf5-26e9-48f7-fbc4-9241f8490e14"
+      },
+      "execution_count": 8,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Mean of 'answered' after cleaning the dataset: 0.5465947998237228\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Remove rows with NAs\n",
+        "df_cleaned = df.dropna()"
+      ],
+      "metadata": {
+        "id": "F9Kh-sovJOfY"
+      },
+      "execution_count": 9,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Remove the row with the single outlier in num_accts\n",
+        "df_cleaned = df_cleaned[df_cleaned['num_accts'] < df_cleaned['num_accts'].quantile(0.99)]\n"
+      ],
+      "metadata": {
+        "id": "TkRqyZunJOc3"
+      },
+      "execution_count": 10,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Remove rows with negative income values\n",
+        "df_cleaned = df_cleaned[df_cleaned['income'] >= 0]\n"
+      ],
+      "metadata": {
+        "id": "v2X1qNs-JOad"
+      },
+      "execution_count": 11,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Recode the identified variables as factors\n",
+        "df_cleaned['job'] = df_cleaned['job'].astype('category')\n",
+        "df_cleaned['product'] = df_cleaned['product'].astype('category')\n",
+        "df_cleaned['chk_acct'] = df_cleaned['chk_acct'].astype('category')\n",
+        "df_cleaned['sav_acct'] = df_cleaned['sav_acct'].astype('category')\n"
+      ],
+      "metadata": {
+        "id": "P-INynT9Je77"
+      },
+      "execution_count": 12,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Calculate the mean of \"answered\" after cleaning the dataset\n",
+        "mean_answered = df_cleaned['answered'].mean()\n",
+        "print(\"Mean of 'answered' after cleaning the dataset:\", mean_answered)"
+      ],
+      "metadata": {
+        "id": "9PwXMBP4Jgqo",
+        "outputId": "4660e74c-07f5-4788-a5b7-11c55b506c6a",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        }
+      },
+      "execution_count": 13,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Mean of 'answered' after cleaning the dataset: 0.5283487990054611\n"
+          ]
+        }
+      ]
+    }
+  ]
+}
